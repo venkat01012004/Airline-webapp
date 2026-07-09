@@ -1,0 +1,34 @@
+# Compiled class files
+*.class
+
+# Maven build output
+target/
+
+# Log files
+*.log
+
+# IDE files
+.idea/
+*.iml
+*.iws
+.vscode/
+.settings/
+.project
+.classpath
+nbproject/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Environment / local config overrides
+*.env
+application-local.properties
+
+# Tomcat local runtime (if run via IDE plugins)
+*.pid
+
+# Packaged artifacts
+*.war
+*.jar
+!maven-wrapper.jar
