@@ -20,7 +20,7 @@ pipeline {
                 sh """
                 ssh -o StrictHostKeyChecking=no ubuntu@${SERVER_IP} '
                     sudo rm -rf Airline-webapp
-                    git clone https://github.com/venkat01012004/Airline-webapp.git
+                    git clone https://github.com/venkat01012004/Airline-webapp.git 
                     cd Airline-webapp
                     mvn clean package
                    sudo cp target/AirlineReservationSystem.war /opt/tomcat/webapps/
