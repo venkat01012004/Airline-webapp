@@ -2,86 +2,30 @@ pipeline {
 
     agent any
 
-    tools {
-        maven 'Maven3'
-        jdk 'JDK21'
-    }
-
     environment {
-        WAR_NAME = 'AirlineReservationSystem.war'
-        TOMCAT_WEBAPPS_DIR = '/opt/tomcat9/webapps'
-    }
-
-    options {
-        timestamps()
-        buildDiscarder(logRotator(numToKeepStr: '10'))
-        disableConcurrentBuilds()
+        APP_NAME = "AirlineReservationSystem"
+        SERVER_IP = "13.234.20.226"
     }
 
     stages {
 
         stage('Checkout') {
             steps {
-                echo 'Checking out source code from Git...'
                 checkout scm
             }
         }
 
-        stage('Build') {
+        stage('Maven Build and Deploy') {
             steps {
-                echo 'Compiling and packaging the application...'
-                sh 'mvn -B clean compile'
-            }
-        }
-
-        stage('Test') {
-            steps {
-                echo 'Running unit tests...'
-                sh 'mvn -B test'
-            }
-            post {
-                always {
-                    junit allowEmptyResults: true, testResults: '**/target/surefire-reports/*.xml'
-                }
-            }
-        }
-
-        stage('Package') {
-            steps {
-                echo 'Packaging WAR file...'
-                sh 'mvn -B package -DskipTests'
-            }
-        }
-
-        stage('Archive Artifact') {
-            steps {
-                echo 'Archiving the generated WAR file...'
-                archiveArtifacts artifacts: "target/${WAR_NAME}", fingerprint: true
-            }
-        }
-
-        stage('Deploy to Tomcat') {
-            when {
-                branch 'main'
-            }
-            steps {
-                echo 'Deploying WAR to Apache Tomcat 9...'
                 sh """
-                    cp target/${WAR_NAME} ${TOMCAT_WEBAPPS_DIR}/${WAR_NAME}
+                ssh -o StrictHostKeyChecking=no ubuntu@${SERVER_IP} '
+                    sudo rm -rf Airline-webapp
+                    git clone https://github.com/venkat01012004/Airline-webapp.git
+                    cd Airline-webapp
+                    mvn clean package
+                   sudo cp target/AirlineReservationSystem.war /opt/tomcat/webapps/
+                '
                 """
             }
         }
     }
-
-    post {
-        success {
-            echo 'Build, test and deployment completed successfully.'
-        }
-        failure {
-            echo 'Build failed. Please check the console output for details.'
-        }
-        always {
-            cleanWs()
-        }
-    }
-}
